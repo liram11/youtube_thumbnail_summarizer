@@ -19,6 +19,9 @@ def get_video_summary():
 
     full_transcript = download_full_transcript(video_id)
     comments = download_comments(video_id)
+    video_info = download_video_info(video_id)
+
+    print(video_info)
 
     summary = summarize_transcript(full_transcript)
 
@@ -44,11 +47,11 @@ def download_full_transcript(video_id):
 
 def download_comments(video_id):
     request = YoutubeClient.commentThreads().list(
-        part= "snippet,replies",
-        order= "relevance",
-        maxResults= 100,
-        textFormat= "plainText",
-        videoId= video_id
+        part = "snippet",
+        order = "relevance",
+        maxResults = 100,
+        textFormat = "plainText",
+        videoId = video_id
     )
 
     response = request.execute()
@@ -59,6 +62,20 @@ def download_comments(video_id):
         comments.append([comment['likeCount'], comment['textDisplay']])
 
     return comments
+
+def download_video_info(video_id):
+    request = YoutubeClient.videos().list(
+        part = "snippet,statistics",
+        id = video_id
+    )
+
+    response = request.execute()
+
+    return {
+        "title": response['items'][0]['snippet']['title'],
+        "view_count": response['items'][0]['statistics']['viewCount'],
+        "like_count": response['items'][0]['statistics']['likeCount'],
+    }
 
 def summarize_transcript(transcript):
     response = AiClient.chat.completions.create(
