@@ -21,16 +21,19 @@ def get_video_summary():
     comments = download_comments(video_id)
     video_info = download_video_info(video_id)
 
-    summary = process_transcript(full_transcript)
-    comment_info = process_comments(comments)
+    summary_info = process_transcript(title=video_info['title'], transcript=full_transcript)
+    comments_info = process_comments(comments)
 
-    print(comment_info)
+
+    print(comments_info)
+
+
 
 
 
     return jsonify({
-        "summary": summary,
-        # "tr": full_transcript
+        "summary": summary_info['summary'],
+        "clickbait_score": calc_clickbait_score(video_info, comments_info, summary_info, comments)
     })
 
 # @app.errorhandler(500)
@@ -84,7 +87,7 @@ def download_video_info(video_id):
 # =============================================================
 # ======================= Process Data ========================
 
-def process_transcript(transcript):
+def process_transcript(transcript='', title=''):
     response = AiClient.chat.completions.create(
         model="meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
         max_tokens=512,
@@ -95,17 +98,21 @@ def process_transcript(transcript):
         messages=[{
             "role": "user",
             "content": '''
-                Generate a summary for a YouTube video transcript. Important: Summary length must not exceed 15 words. Those symbols are not allowed in the summary text: ".
+                Generate a summary for a YouTube video transcript.
+
+                I also want you to compare the video summary with the video title and provide me a similarity score from 0 to 100.
+
+                Important: Summary length must not exceed 15 words. Those symbols are not allowed in the summary text: ".
 
                 You must respond ONLY with the JSON schema with the following structure. Do not add any additional comments. Don't make any greetings, like, "Here your response".
 
                 Return me a valid json in this format:
                 {
                     "summary": "<Summary goes here>",
+                    "title_similarity_score": "<Title similarity score goes here>",
                 }
 
-                Here is the transcript:
-            ''' + transcript
+            ''' + "Video title: " + title + "\n\nHere is the transcript:" + transcript
         }],
     )
 
@@ -177,6 +184,45 @@ def process_comments(comments):
 # =============================================================
 # ======================== Calc score =========================
 
+def calc_clickbait_score(video_info=None, comments_info=None, summary_info=None, comments=None):
+    if not video_info or not comments_info or not summary_info:
+        raise Exception('Missing data')
+
+    title_similarity_score = 100 - summary_info['title_similarity_score']
+    likes_to_views_score = get_likes_to_views_clickbait_score(video_info)
+    comments_score = get_comments_score(comments, comments_info)
+
+    print('likes_to_views_score', likes_to_views_score)
+    print('comments_score', comments_score)
+    print('title_similarity_score', title_similarity_score)
+
+    return 0.3 * likes_to_views_score + 0.3 * comments_score + 0.4 * title_similarity_score
+
+def get_likes_to_views_clickbait_score(video_info):
+    likes_to_views = int(video_info['like_count']) / int(video_info['view_count'])
+
+    if likes_to_views < 0.01:
+        return 100
+    elif likes_to_views < 0.02:
+        return 50
+
+    return 0
+
+def get_comments_score(comments, comments_info):
+    clickbait_mentions_on_comment = comments_info['clickbait_mentions'] / len(comments)
+
+    if clickbait_mentions_on_comment > 0.4:
+        return 100
+    elif clickbait_mentions_on_comment > 0.3:
+        return 80
+    elif clickbait_mentions_on_comment > 0.2:
+        return 50
+    elif clickbait_mentions_on_comment > 0.1:
+        return 30
+    elif clickbait_mentions_on_comment > 0.05:
+        return 15
+
+    return 0
 
 # =============================================================
 
