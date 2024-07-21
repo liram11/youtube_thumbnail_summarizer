@@ -1,11 +1,15 @@
+const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 
 module.exports = {
   entry: {
-    // background: './public/background.js',
     main: './src/index.tsx',
-    // contentScript: './src/contentScripts/contentScript.ts',
+    content: './src/content.ts',
+    // background: './public/background.js',
   },
   devServer: {
     watchFiles: ["src/**/*"],
@@ -36,4 +40,19 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [{
+        from: path.resolve(__dirname, 'public'),
+        to:  path.resolve(__dirname, 'dist'),
+        globOptions: {
+          ignore: ['**/index.html'],
+        },
+      }],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, './public/index.html')
+    }),
+    new CleanWebpackPlugin()
+  ],
 };

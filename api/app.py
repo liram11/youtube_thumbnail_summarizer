@@ -24,16 +24,13 @@ def get_video_summary():
     summary_info = process_transcript(title=video_info['title'], transcript=full_transcript)
     comments_info = process_comments(comments)
 
-
     print(comments_info)
 
-
-
-
-
     return jsonify({
-        "summary": summary_info['summary'],
-        "clickbait_score": calc_clickbait_score(video_info, comments_info, summary_info, comments)
+        "clickbait_score": calc_clickbait_score(video_info, comments_info, summary_info, comments),
+        "justification": 'TODO',
+	    "tldr_of_comments": 'TODO',
+        "video_summary": summary_info['summary'],
     })
 
 # @app.errorhandler(500)
@@ -181,6 +178,7 @@ def process_comments(comments):
     data = json.loads(response.choices[0].message.content)
 
     return data
+
 # =============================================================
 # ======================== Calc score =========================
 
