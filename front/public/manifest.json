@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Clickbait Raiting Extension",
+  "version": "1.0.0",
+  "description": "Generates video summaries, clickbait raiting and show tooltips near video previews",
+  "author": "Leo Kruglov",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "action":{
+      "default_popup": "index.html",
+      "default_title": "YouTube Clickbait Checker"
+  },
+}
