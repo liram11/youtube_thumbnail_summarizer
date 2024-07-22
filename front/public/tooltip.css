@@ -18,9 +18,9 @@
 .clickbait-checker-tooltip-root-active {
   position: absolute;
   top: 0px;
+  bottom: 0px;
   right: 0px;
   left: 0px;
-  right: 0px;
 
   color: #fff;
   background: rgba(0,0,0,0.6);
@@ -29,6 +29,16 @@
   cursor: pointer;
   z-index: 30;
 }
+
+.clickbait-checker-tooltip {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.clickbait-checker-tooltip-result {
+  font-weight: 500;
+}
+
 .clickbait-checker-raiting {
   font-weight: bold;
   width: 36px;

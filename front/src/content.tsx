@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ClickbaitChecker } from "./components/ClickbaitChecker";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const CLICKBAIT_CHECKER_ROOT_CLASS = 'clickbait_checker_root'
+const CLICKBAIT_CHECKER_ROOT_CLASS = 'clickbait-checker-root'
 const queryClient = new QueryClient()
 
 function hasClass(elem: HTMLElement | null, className: string) {
@@ -16,7 +16,6 @@ function addClickbaitCheckerRoot({parent, videoId, videoType}: {parent: ParentNo
   if (parent) {
     let newRoot = document.createElement('div')
     if (root) {
-      root.style.display = 'block'
       newRoot = root
     } else {
       // const newRoot = document.createElement('div')
@@ -33,15 +32,6 @@ function addClickbaitCheckerRoot({parent, videoId, videoType}: {parent: ParentNo
     );
 
     return newRoot
-  }
-}
-
-function hideClickbaitCheckerRoot(parent: ParentNode | HTMLElement | null) {
-  const root = parent?.querySelector(`.${CLICKBAIT_CHECKER_ROOT_CLASS}`) as HTMLDivElement
-  if (parent && root) {
-    root.style.display = 'none'
-
-    return root
   }
 }
 
@@ -85,7 +75,7 @@ document.addEventListener('mouseover', (e) => {
 
       console.log(controlsHost)
       addClickbaitCheckerRoot({parent: controlsHost, videoId, videoType})
-    }, 300)
+    }, 500)
 
 
     console.log('tooltip added')

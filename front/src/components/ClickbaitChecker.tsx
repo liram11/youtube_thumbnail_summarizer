@@ -45,7 +45,9 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
   if (error)  {
     return (
       <div className="clickbait-checker-tooltip-root">
-        X
+        <div className="clickbait-checker-tooltip">
+          X
+        </div>
       </div>
     );
   }
@@ -65,17 +67,28 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
     video_summary
   } = data || {}
 
-  console.log('!!clickbait_score', clickbait_score)
-
-      //       Clickbait Rating: ${clickbait_score}/100
-//       Justification: ${justification}
-//       TL;DR of Comments: ${tldr_of_comments ?? ''}
-//       Video Summary: ${video_summary ?? ''}
   return (
-    <div className={isActive ? "clickbait-checker-tooltip-root-active" : "clickbait-checker-tooltip-root"} onMouseEnter={() => setIsActive(true)}>
-      <div className="clickbait-checker-raiting">
-        {clickbait_score}
-      </div>
+    <div className={isActive ? "clickbait-checker-tooltip-root-active" : "clickbait-checker-tooltip-root"} onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
+      {isActive ?
+        <div className="clickbait-checker-tooltip">
+          <div>
+            Clickbait Rating: <span className='clickbait-checker-tooltip-result'>{clickbait_score}/100</span>
+          </div>
+          <div>
+            Justification: <span className='clickbait-checker-tooltip-result'>{justification}</span>
+          </div>
+          <div>
+            TL;DR of Comments: <span className='clickbait-checker-tooltip-result'>{tldr_of_comments ?? ''}</span>
+          </div>
+          <div>
+            Video Summary: <span className='clickbait-checker-tooltip-result'>{video_summary ?? ''}</span>
+          </div>
+        </div>
+        :
+        <div className="clickbait-checker-raiting">
+          {clickbait_score}
+        </div>
+      }
     </div>
   )
 };

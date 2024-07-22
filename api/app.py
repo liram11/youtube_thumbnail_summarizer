@@ -28,9 +28,11 @@ def get_video_summary():
     comments_info = process_comments(comments)
     print('>>>>processing is finished')
 
+    clickbait = calc_clickbait_score(video_info, comments_info, summary_info, comments),
+
     return jsonify({
-        "clickbait_score": calc_clickbait_score(video_info, comments_info, summary_info, comments),
-        "justification": 'TODO',
+        "clickbait_score": clickbait['score'],
+        "justification": clickbait['justification'],
 	    "tldr_of_comments": 'TODO',
         "video_summary": summary_info['summary'],
     })
@@ -203,16 +205,55 @@ def calc_clickbait_score(video_info=None, comments_info=None, summary_info=None,
     print('likes_to_views_score', likes_to_views_score)
     print('comments_score', comments_score)
     print('title_similarity_score', title_similarity_score)
+    score = round(0.3 * likes_to_views_score + 0.3 * comments_score + 0.4 * title_similarity_score, 1)
+    justification = get_justification(likes_to_views_score, comments_score, title_similarity_score)
 
-    return 0.3 * likes_to_views_score + 0.3 * comments_score + 0.4 * title_similarity_score
+    return {
+        "score": score,
+        "justification": justification
+    }
+
+def get_justification(likes_to_views_score=0, comments_score=0, title_similarity_score=0):
+    justification = ['The video has']
+
+    if likes_to_views_score > 50:
+        justification.push(' a low like-to-view ratio')
+    elif likes_to_views_score > 29:
+        justification.push(' a medium like-to-view ratio')
+
+    if comments_score > 50:
+        justification.push(', a low like-to-view ratio')
+    elif comments_score > 29:
+        justification.push(', a medium like-to-view ratio')
+
+    if len(justification) > 1:
+        justification.push(', and has')
+
+    if title_similarity_score > 50:
+        justification.push(' a title that does not match the content')
+    elif title_similarity_score > 29:
+        justification.push(' a title that partially match the content')
+
+    if len(justification) > 1:
+        justification.push('.')
+    else:
+        justification.push(' a low clickbait score.')
+
+    return justification.join('')
+
+
 
 def get_likes_to_views_clickbait_score(video_info):
     likes_to_views = int(video_info['like_count']) / int(video_info['view_count'])
 
     if likes_to_views < 0.01:
         return 100
-    elif likes_to_views < 0.02:
-        return 50
+    elif likes_to_views < 0.015:
+        return 60
+    elif likes_to_views < 0.025:
+        return 40
+    elif likes_to_views < 0.03:
+        return 30
 
     return 0
 
