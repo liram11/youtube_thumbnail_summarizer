@@ -1,16 +1,29 @@
 /* tooltip.css */
 
-.clickbait-checker-tooltip {
-  width: max-content;
+.clickbait-checker-tooltip-root {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: #222;
-  color: white;
-  font-weight: bold;
-  padding: 5px;
-  border-radius: 4px;
-  font-size: 90%;
+  top: 104px;
+  right: 8px;
+  width: 200px;
+  height: 130px;
+
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  animation: var(--inline-player-button-animation);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 30;
+}
+
+.clickbait-checker-spinner-root {
+  position: relative;
+}
+
+.clickbait-checker-spinner {
+  width: 20px !important;
+  height: 20px !important;
+  margin-left: -10px !important;
+  margin-top: 4px !important;
 }
 
 /* .tooltip {

@@ -1,20 +1,60 @@
-
 const CLICKBAIT_CHECKER_ROOT_CLASS = 'clickbait_checker_root'
 
 function hasClass(elem: HTMLElement | null, className: string) {
   return elem?.classList.contains(className);
 }
 
-function addClickbaitCheckerRoot(parent: ParentNode | HTMLElement | null) {
-  const root = parent?.querySelector(`.${CLICKBAIT_CHECKER_ROOT_CLASS}`) as HTMLDivElement
+interface ThumbnailSummaryData {
+  clickbait_score: number,
+  justification: string,
+  tldr_of_comments?: string,
+  video_summary?: string
+}
+
+async function addClickbaitCheckerRoot({parent, videoId}: {parent: ParentNode | HTMLElement | null, videoId: string}) {
+  let root = parent?.querySelector(`.${CLICKBAIT_CHECKER_ROOT_CLASS}`) as HTMLDivElement
   if (parent && !root) {
-    const  newRoot = document.createElement('div')
+    if(!root)  {
+      root = document.createElement('div')
+    }
 
 
-    newRoot.innerHTML = 'tooltip'
-    parent?.appendChild(newRoot)
-    console.log('render react')
-    return newRoot
+    let data = {} as ThumbnailSummaryData
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/thumbnail-summary?video_id=${videoId}`)
+
+      if (!response.ok) {
+        console.log('failed to fetch thumbnail summary')
+        return
+      }
+
+      data = await response.json() as ThumbnailSummaryData
+
+    } catch (e) {
+      console.log('failed to fetch thumbnail summary', e)
+      return
+    }
+
+    console.log('data', data)
+
+    const {
+      clickbait_score,
+      justification,
+      tldr_of_comments,
+      video_summary
+    } = data
+
+    const tooltipText = `
+      Clickbait Rating: ${clickbait_score}/100
+      Justification: ${justification}
+      TL;DR of Comments: ${tldr_of_comments ?? ''}
+      Video Summary: ${video_summary ?? ''}
+    `
+
+    root.innerHTML = tooltipText
+    root.classList.add(CLICKBAIT_CHECKER_ROOT_CLASS)
+    parent?.appendChild(root)
+    return root
   }
 }
 
@@ -64,7 +104,7 @@ document.addEventListener('mouseover', (e) => {
       }
 
       console.log(controlsHost)
-      addClickbaitCheckerRoot(controlsHost)
+      addClickbaitCheckerRoot({parent: controlsHost, videoId})
     }, 300)
 
 
