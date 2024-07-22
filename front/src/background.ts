@@ -4,9 +4,9 @@
 // This script runs in the background and handles events and communication between the extension and the browser
 
 // Example code:
-chrome.runtime.onInstalled.addListener(() => {
-  console.log('Video clickbait extension installed');
-});
+// chrome.runtime.onInstalled.addListener(() => {
+//   console.log('Video clickbait extension installed');
+// });
 
 // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //   console.log('Message received:', message);

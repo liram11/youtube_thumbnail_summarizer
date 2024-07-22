@@ -21,7 +21,6 @@ function addClickbaitCheckerRoot({parent, videoId, videoType}: {parent: ParentNo
       // const newRoot = document.createElement('div')
       newRoot.classList.add(CLICKBAIT_CHECKER_ROOT_CLASS)
       parent?.appendChild(newRoot)
-      console.log('newRoot added')
     }
 
     const reactRoot = createRoot(newRoot)
@@ -44,7 +43,7 @@ document.addEventListener('mouseover', (e) => {
     const videoLink = target.parentNode?.parentNode as HTMLLinkElement | null | undefined
 
     if (!videoLink) {
-      console.log('no video link found')
+      console.log('Youtube Clickbait Checker error: no video link found')
       return
     }
 
@@ -60,7 +59,7 @@ document.addEventListener('mouseover', (e) => {
     const videoId = params.get("v") || '';
 
     if(!videoId) {
-      console.log('no video id found')
+      console.log('Youtube Clickbait Checker error: no video id found')
       return
     }
 
@@ -69,16 +68,12 @@ document.addEventListener('mouseover', (e) => {
       const controlsHost = videoPreviewContainer?.querySelector('.YtInlinePlayerControlsHost')
 
       if (!controlsHost) {
-        console.log('controlsHost is not found')
+        console.log('Youtube Clickbait Checker error: controlsHost is not found')
         return
       }
 
-      console.log(controlsHost)
       addClickbaitCheckerRoot({parent: controlsHost, videoId, videoType})
     }, 500)
-
-
-    console.log('tooltip added')
   }
 }, false);
 

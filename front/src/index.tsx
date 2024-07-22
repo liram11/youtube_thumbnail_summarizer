@@ -6,8 +6,3 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 
 root.render(<App />);
-
-
-window.onload = (e) => {
-  console.log("window.onload", e, Date.now() );
-}
