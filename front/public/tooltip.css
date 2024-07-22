@@ -36,6 +36,10 @@
 }
 
 .clickbait-checker-tooltip-result {
+  padding-bottom: 4px;
+}
+
+.clickbait-checker-tooltip-result-title {
   font-weight: 500;
 }
 

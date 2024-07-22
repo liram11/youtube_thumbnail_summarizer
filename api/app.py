@@ -28,12 +28,12 @@ def get_video_summary():
     comments_info = process_comments(comments)
     print('>>>>processing is finished')
 
-    clickbait = calc_clickbait_score(video_info, comments_info, summary_info, comments),
+    clickbait = calc_clickbait_score(video_info, comments_info, summary_info, comments)
 
     return jsonify({
-        "clickbait_score": clickbait['score'],
+        'clickbait_score': clickbait['score'],
         "justification": clickbait['justification'],
-	    "tldr_of_comments": 'TODO',
+	    "tldr_of_comments": comments_info['comments_summary'],
         "video_summary": summary_info['summary'],
     })
 
@@ -217,29 +217,29 @@ def get_justification(likes_to_views_score=0, comments_score=0, title_similarity
     justification = ['The video has']
 
     if likes_to_views_score > 50:
-        justification.push(' a low like-to-view ratio')
+        justification.append(' a low like-to-view ratio')
     elif likes_to_views_score > 29:
-        justification.push(' a medium like-to-view ratio')
+        justification.append(' a medium like-to-view ratio')
 
     if comments_score > 50:
-        justification.push(', a low like-to-view ratio')
+        justification.append(', a low like-to-view ratio')
     elif comments_score > 29:
-        justification.push(', a medium like-to-view ratio')
+        justification.append(', a medium like-to-view ratio')
 
     if len(justification) > 1:
-        justification.push(', and has')
+        justification.append(', and has')
 
     if title_similarity_score > 50:
-        justification.push(' a title that does not match the content')
+        justification.append(' a title that does not match the content')
     elif title_similarity_score > 29:
-        justification.push(' a title that partially match the content')
+        justification.append(' a title that partially match the content')
 
     if len(justification) > 1:
-        justification.push('.')
+        justification.append('.')
     else:
-        justification.push(' a low clickbait score.')
+        justification.append(' a low clickbait score.')
 
-    return justification.join('')
+    return ''.join(justification)
 
 
 

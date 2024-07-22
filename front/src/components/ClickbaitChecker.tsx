@@ -54,7 +54,7 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
 
   if (isLoading) {
     return (
-      <div className="clickbait-checker-tooltip-root">
+      <div className="clickbait-checker-tooltip-root" onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
         <Spinner/>
       </div>
     );
@@ -71,17 +71,17 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
     <div className={isActive ? "clickbait-checker-tooltip-root-active" : "clickbait-checker-tooltip-root"} onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
       {isActive ?
         <div className="clickbait-checker-tooltip">
-          <div>
-            Clickbait Rating: <span className='clickbait-checker-tooltip-result'>{clickbait_score}/100</span>
+          <div className="clickbait-checker-tooltip-result">
+            <span className='clickbait-checker-tooltip-result-title'>Clickbait Rating: </span>{clickbait_score}/100
           </div>
-          <div>
-            Justification: <span className='clickbait-checker-tooltip-result'>{justification}</span>
+          <div className="clickbait-checker-tooltip-result">
+            <span className='clickbait-checker-tooltip-result-title'>Justification: </span>{justification}
+          </div >
+          <div className="clickbait-checker-tooltip-result">
+            <span className='clickbait-checker-tooltip-result-title'>TL;DR of Comments: </span>{tldr_of_comments ?? ''}
           </div>
-          <div>
-            TL;DR of Comments: <span className='clickbait-checker-tooltip-result'>{tldr_of_comments ?? ''}</span>
-          </div>
-          <div>
-            Video Summary: <span className='clickbait-checker-tooltip-result'>{video_summary ?? ''}</span>
+          <div className="clickbait-checker-tooltip-result">
+            <span className='clickbait-checker-tooltip-result-title'>Video Summary: </span>{video_summary ?? ''}
           </div>
         </div>
         :
