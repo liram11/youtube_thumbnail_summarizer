@@ -18,7 +18,6 @@ function addClickbaitCheckerRoot({parent, videoId, videoType}: {parent: ParentNo
     if (root) {
       newRoot = root
     } else {
-      // const newRoot = document.createElement('div')
       newRoot.classList.add(CLICKBAIT_CHECKER_ROOT_CLASS)
       parent?.appendChild(newRoot)
     }
@@ -57,7 +56,6 @@ document.addEventListener('mouseover', (e) => {
 
     // skipping shorts for now
     if(videoLink.href.indexOf('https://www.youtube.com/shorts/') === 0){
-      // hideClickbaitCheckerRoot(videoPreviewContainer)
       videoType = 'short'
       return
       // videoId = videoLink.href.replace('https://www.youtube.com/shorts/', '')
@@ -72,16 +70,16 @@ document.addEventListener('mouseover', (e) => {
     }
 
     // wait until controlsHost is loaded
-    setTimeout(() => {
-      const controlsHost = videoPreviewContainer?.querySelector('.YtInlinePlayerControlsHost')
 
-      if (!controlsHost) {
-        console.log('Youtube Clickbait Checker error: controlsHost is not found')
-        return
-      }
+    const controlsHost = videoPreviewContainer?.querySelector('.YtInlinePlayerControlsHost')
 
-      addClickbaitCheckerRoot({parent: controlsHost, videoId, videoType})
-    }, 500)
+    if (!controlsHost) {
+      console.log('Youtube Clickbait Checker error: controlsHost is not found')
+      return
+    }
+
+    addClickbaitCheckerRoot({parent: controlsHost, videoId, videoType})
+
   }
 }, false);
 
