@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "lint": "eslint . --ext .js,.ts,.tsx",
+    "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.7",

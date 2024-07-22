@@ -1,9 +1,6 @@
-import pluginQuery from '@tanstack/eslint-plugin-query'
-
 module.exports = {
   "parser": "@typescript-eslint/parser",
   "extends": [
-    ...pluginQuery.configs['flat/recommended'],
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
