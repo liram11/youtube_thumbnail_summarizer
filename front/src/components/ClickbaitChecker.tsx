@@ -12,7 +12,7 @@ interface ThumbnailSummaryData {
 }
 
 // const API_HOST = 'https://9ec9f617-5931-44bb-a369-34055cbc23b4-00-1ysli21nuv1di.pike.replit.dev'
-const API_HOST = ' http://127.0.0.1:5000'
+const API_HOST = 'https://youtubethumbnailsummarizer-liram07.replit.app'
 
 export interface ClickbaitCheckerProps {
   videoId: string;
