@@ -43,12 +43,6 @@ def get_video_summary():
         }
     )
 
-
-# @app.errorhandler(500)
-# def internal_server_error(e):
-#     return jsonify(error=str(e)), 500
-
-
 # ================== Fetch data from YouTube ==================
 def download_full_transcript(video_id):
     try:
