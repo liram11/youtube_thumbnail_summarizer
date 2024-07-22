@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Spinner } from './Spinner';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query'
@@ -7,8 +7,12 @@ interface ThumbnailSummaryData {
   clickbait_score: number,
   justification: string,
   tldr_of_comments?: string,
-  video_summary?: string
+  video_summary?: string,
+  video_id: string
 }
+
+// const API_HOST = 'https://9ec9f617-5931-44bb-a369-34055cbc23b4-00-1ysli21nuv1di.pike.replit.dev'
+const API_HOST = ' http://127.0.0.1:5000'
 
 export interface ClickbaitCheckerProps {
   videoId: string;
@@ -23,7 +27,7 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
   const { isLoading, error, data } = useQuery<ThumbnailSummaryData>({
     queryKey: ['thumbnailSummary', videoId],
     queryFn: async ({signal}) => {
-      const response = await fetch(`http://localhost:5000/api/v1/thumbnail-summary?video_id=${videoId}`, {signal})
+      const response = await fetch(`${API_HOST}/api/v1/thumbnail-summary?video_id=${videoId}`, {signal})
       return response.json();
     },
     retry: 5
@@ -34,9 +38,6 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
 
     setPrevVideoId(videoId)
   }, [videoId])
-
-
-  console.log(error, data)
 
   if (videoType === 'short') {
     return null
@@ -52,20 +53,22 @@ export const ClickbaitChecker: React.FC<ClickbaitCheckerProps> = ({videoId, vide
     );
   }
 
-  if (isLoading) {
+
+  const {
+    clickbait_score,
+    justification,
+    tldr_of_comments,
+    video_summary,
+    video_id
+  } = data || {}
+
+  if (isLoading || videoId !== video_id) {
     return (
       <div className="clickbait-checker-tooltip-root" onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
         <Spinner/>
       </div>
     );
   }
-
-  const {
-    clickbait_score,
-    justification,
-    tldr_of_comments,
-    video_summary
-  } = data || {}
 
   return (
     <div className={isActive ? "clickbait-checker-tooltip-root-active" : "clickbait-checker-tooltip-root"} onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>

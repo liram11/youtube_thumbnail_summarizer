@@ -52,7 +52,7 @@ def get_video_summary():
 # ================== Fetch data from YouTube ==================
 def download_full_transcript(video_id):
     try:
-        transcripts = YouTubeTranscriptApi.get_transcript(video_id)
+        transcripts = YouTubeTranscriptApi.get_transcript(video_id, languages=['en', 'en-US', 'en-UK'])
 
         full_transcript = ""
         for transcript in transcripts:
@@ -246,9 +246,9 @@ def calc_clickbait_score(
     print("comments_score", comments_score)
     print("title_similarity_score", title_similarity_score)
     score = round(
-        0.3 * likes_to_views_score
+        0.4 * likes_to_views_score
         + 0.3 * comments_score
-        + 0.4 * title_similarity_score,
+        + 0.3 * title_similarity_score,
         1,
     )
     justification = get_justification(
@@ -310,15 +310,15 @@ def get_comments_score(comments, comments_info):
 
     clickbait_mentions_on_comment = comments_info["clickbait_mentions"] / len(comments)
 
-    if clickbait_mentions_on_comment > 0.4:
+    if clickbait_mentions_on_comment > 0.2:
         return 100
-    elif clickbait_mentions_on_comment > 0.3:
+    elif clickbait_mentions_on_comment > 0.15:
         return 80
-    elif clickbait_mentions_on_comment > 0.2:
-        return 50
     elif clickbait_mentions_on_comment > 0.1:
-        return 30
+        return 50
     elif clickbait_mentions_on_comment > 0.05:
+        return 30
+    elif clickbait_mentions_on_comment > 0.03:
         return 15
 
     return 0

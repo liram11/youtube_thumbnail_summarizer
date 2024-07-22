@@ -35,15 +35,23 @@ function addClickbaitCheckerRoot({parent, videoId, videoType}: {parent: ParentNo
 }
 
 document.addEventListener('mouseover', (e) => {
-  if (e.target && hasClass(e.target as HTMLElement | null, 'yt-core-image--loaded')) {
+  const target = e.target as HTMLElement | null
+  const isThumbnail = target && hasClass(target, 'yt-core-image--loaded')
+  const isDetails = target?.matches('#details, #details *')
+
+  if (target && (isThumbnail || isDetails)) {
     const videoPreviewContainer = document.getElementById('video-preview-container')
-    const target = e.target as HTMLElement
+
     let videoType = 'video'
 
-    const videoLink = target.parentNode?.parentNode as HTMLLinkElement | null | undefined
+    let videoLink = target.parentNode?.parentNode as HTMLLinkElement | null | undefined
 
-    if (!videoLink) {
-      console.log('Youtube Clickbait Checker error: no video link found')
+    if (isDetails) {
+      videoLink = videoPreviewContainer?.querySelector('#media-container-link') as HTMLLinkElement | null | undefined
+    }
+
+    if (!videoLink || !videoLink.href) {
+      console.log('Youtube Clickbait Checker error: no video id found')
       return
     }
 
