@@ -316,7 +316,7 @@ def get_comments_score(comments, comments_info):
     if len(comments) == 0:
         return 0
 
-    clickbait_mentions_on_comment = comments_info["clickbait_mentions"] / len(comments)
+    clickbait_mentions_on_comment = int(comments_info["clickbait_mentions"]) / len(comments)
 
     if clickbait_mentions_on_comment > 0.2:
         return 100
