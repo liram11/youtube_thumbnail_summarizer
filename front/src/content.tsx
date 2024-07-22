@@ -1,60 +1,38 @@
+import React from 'react'
+import { createRoot } from "react-dom/client";
+import { ClickbaitChecker } from "./components/ClickbaitChecker";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 const CLICKBAIT_CHECKER_ROOT_CLASS = 'clickbait_checker_root'
+const queryClient = new QueryClient()
 
 function hasClass(elem: HTMLElement | null, className: string) {
   return elem?.classList.contains(className);
 }
 
-interface ThumbnailSummaryData {
-  clickbait_score: number,
-  justification: string,
-  tldr_of_comments?: string,
-  video_summary?: string
-}
 
-async function addClickbaitCheckerRoot({parent, videoId}: {parent: ParentNode | HTMLElement | null, videoId: string}) {
-  let root = parent?.querySelector(`.${CLICKBAIT_CHECKER_ROOT_CLASS}`) as HTMLDivElement
-  if (parent && !root) {
-    if(!root)  {
-      root = document.createElement('div')
+function addClickbaitCheckerRoot({parent, videoId, videoType}: {parent: ParentNode | HTMLElement | null, videoId: string, videoType:string}) {
+  const root = parent?.querySelector(`.${CLICKBAIT_CHECKER_ROOT_CLASS}`) as HTMLDivElement
+  if (parent) {
+    let newRoot = document.createElement('div')
+    if (root) {
+      root.style.display = 'block'
+      newRoot = root
+    } else {
+      // const newRoot = document.createElement('div')
+      newRoot.classList.add(CLICKBAIT_CHECKER_ROOT_CLASS)
+      parent?.appendChild(newRoot)
+      console.log('newRoot added')
     }
 
+    const reactRoot = createRoot(newRoot)
+    reactRoot.render(
+      <QueryClientProvider client={queryClient}>
+        <ClickbaitChecker videoId={videoId} videoType={videoType}/>
+      </QueryClientProvider>
+    );
 
-    let data = {} as ThumbnailSummaryData
-    try {
-      const response = await fetch(`http://localhost:5000/api/v1/thumbnail-summary?video_id=${videoId}`)
-
-      if (!response.ok) {
-        console.log('failed to fetch thumbnail summary')
-        return
-      }
-
-      data = await response.json() as ThumbnailSummaryData
-
-    } catch (e) {
-      console.log('failed to fetch thumbnail summary', e)
-      return
-    }
-
-    console.log('data', data)
-
-    const {
-      clickbait_score,
-      justification,
-      tldr_of_comments,
-      video_summary
-    } = data
-
-    const tooltipText = `
-      Clickbait Rating: ${clickbait_score}/100
-      Justification: ${justification}
-      TL;DR of Comments: ${tldr_of_comments ?? ''}
-      Video Summary: ${video_summary ?? ''}
-    `
-
-    root.innerHTML = tooltipText
-    root.classList.add(CLICKBAIT_CHECKER_ROOT_CLASS)
-    parent?.appendChild(root)
-    return root
+    return newRoot
   }
 }
 
@@ -71,6 +49,7 @@ document.addEventListener('mouseover', (e) => {
   if (e.target && hasClass(e.target as HTMLElement | null, 'yt-core-image--loaded')) {
     const videoPreviewContainer = document.getElementById('video-preview-container')
     const target = e.target as HTMLElement
+    let videoType = 'video'
 
     const videoLink = target.parentNode?.parentNode as HTMLLinkElement | null | undefined
 
@@ -81,7 +60,8 @@ document.addEventListener('mouseover', (e) => {
 
     // skipping shorts for now
     if(videoLink.href.indexOf('https://www.youtube.com/shorts/') === 0){
-      hideClickbaitCheckerRoot(videoPreviewContainer)
+      // hideClickbaitCheckerRoot(videoPreviewContainer)
+      videoType = 'short'
       return
       // videoId = videoLink.href.replace('https://www.youtube.com/shorts/', '')
     }
@@ -104,7 +84,7 @@ document.addEventListener('mouseover', (e) => {
       }
 
       console.log(controlsHost)
-      addClickbaitCheckerRoot({parent: controlsHost, videoId})
+      addClickbaitCheckerRoot({parent: controlsHost, videoId, videoType})
     }, 300)
 
 

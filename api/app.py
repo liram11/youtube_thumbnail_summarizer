@@ -92,6 +92,10 @@ def extract_json(content):
     return json.loads(content[start:end + 1])
 
 def process_transcript(transcript='', title=''):
+    # TODO: solve issue for longer videos
+    if len(transcript) > 7800:
+        transcript = transcript[0: 7800]
+
     response = AiClient.chat.completions.create(
         model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
         max_tokens=512,
@@ -213,6 +217,9 @@ def get_likes_to_views_clickbait_score(video_info):
     return 0
 
 def get_comments_score(comments, comments_info):
+    if len(comments) == 0:
+        return 0
+
     clickbait_mentions_on_comment = comments_info['clickbait_mentions'] / len(comments)
 
     if clickbait_mentions_on_comment > 0.4:

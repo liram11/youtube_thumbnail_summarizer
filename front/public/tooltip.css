@@ -4,8 +4,8 @@
   position: absolute;
   top: 104px;
   right: 8px;
-  width: 200px;
-  height: 130px;
+  width: 36px;
+  height: 36px;
 
   color: #fff;
   background: rgba(0,0,0,0.6);
@@ -13,6 +13,29 @@
   border-radius: 50%;
   cursor: pointer;
   z-index: 30;
+}
+
+.clickbait-checker-tooltip-root-active {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  left: 0px;
+  right: 0px;
+
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  /* animation: var(--inline-player-button-animation); */
+  /* border-radius: 50%; */
+  cursor: pointer;
+  z-index: 30;
+}
+.clickbait-checker-raiting {
+  font-weight: bold;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  font-size: 16px;
 }
 
 .clickbait-checker-spinner-root {
@@ -23,7 +46,7 @@
   width: 20px !important;
   height: 20px !important;
   margin-left: -10px !important;
-  margin-top: 4px !important;
+  margin-top: 8px !important;
 }
 
 /* .tooltip {
