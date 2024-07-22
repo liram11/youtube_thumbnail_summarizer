@@ -39,6 +39,7 @@ def get_video_summary():
             "justification": clickbait["justification"],
             "tldr_of_comments": comments_info["comments_summary"],
             "video_summary": summary_info["summary"],
+            "video_id": video_id
         }
     )
 
@@ -50,44 +51,58 @@ def get_video_summary():
 
 # ================== Fetch data from YouTube ==================
 def download_full_transcript(video_id):
-    transcripts = YouTubeTranscriptApi.get_transcript(video_id)
+    try:
+        transcripts = YouTubeTranscriptApi.get_transcript(video_id)
 
-    full_transcript = ""
-    for transcript in transcripts:
-        full_transcript += transcript["text"] + " "
+        full_transcript = ""
+        for transcript in transcripts:
+            full_transcript += transcript["text"] + " "
 
-    return full_transcript
+        return full_transcript
+    except Exception as e:
+        print(e)
+        abort(500, 'Failed to load transcript')
 
 
 def download_comments(video_id):
-    request = YoutubeClient.commentThreads().list(
-        part="snippet",
-        order="relevance",
-        maxResults=100,
-        textFormat="plainText",
-        videoId=video_id,
-    )
+    try:
+        request = YoutubeClient.commentThreads().list(
+            part="snippet",
+            order="relevance",
+            maxResults=100,
+            textFormat="plainText",
+            videoId=video_id,
+        )
 
-    response = request.execute()
-    comments = []
+        response = request.execute()
+        comments = []
 
-    for item in response["items"]:
-        comment = item["snippet"]["topLevelComment"]["snippet"]
-        comments.append([comment["likeCount"], comment["textDisplay"]])
+        for item in response["items"]:
+            comment = item["snippet"]["topLevelComment"]["snippet"]
+            comments.append([comment["likeCount"], comment["textDisplay"]])
 
-    return comments
+        return comments
+
+    except Exception as e:
+        print(e)
+        abort(500, 'Failed to load comments')
 
 
 def download_video_info(video_id):
-    request = YoutubeClient.videos().list(part="snippet,statistics", id=video_id)
+    try:
+        request = YoutubeClient.videos().list(part="snippet,statistics", id=video_id)
 
-    response = request.execute()
+        response = request.execute()
 
-    return {
-        "title": response["items"][0]["snippet"]["title"],
-        "view_count": response["items"][0]["statistics"]["viewCount"],
-        "like_count": response["items"][0]["statistics"]["likeCount"],
-    }
+        return {
+            "title": response["items"][0]["snippet"]["title"],
+            "view_count": response["items"][0]["statistics"]["viewCount"],
+            "like_count": response["items"][0]["statistics"]["likeCount"],
+        }
+
+    except Exception as e:
+        print(e)
+        abort(500, 'Failed to load video info')
 
 
 # =============================================================
@@ -104,44 +119,48 @@ def process_transcript(transcript="", title=""):
     if len(transcript) > 7800:
         transcript = transcript[0:7800]
 
-    response = AiClient.chat.completions.create(
-        model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
-        max_tokens=512,
-        temperature=0.2,
-        top_p=0.7,
-        top_k=50,
-        repetition_penalty=1,
-        messages=[
-            {
-                "role": "user",
-                "content": """
-                    Generate a summary for a YouTube video transcript.
+    try:
+        response = AiClient.chat.completions.create(
+            model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
+            max_tokens=512,
+            temperature=0.2,
+            top_p=0.7,
+            top_k=50,
+            repetition_penalty=1,
+            messages=[
+                {
+                    "role": "user",
+                    "content": """
+                        Generate a summary for a YouTube video transcript.
 
-                    I also want you to compare the video summary with the video title and provide me a similarity score from 0 to 100.
+                        I also want you to compare the video summary with the video title and provide me a similarity score from 0 to 100.
 
-                    Important: Summary length must not exceed 15 words. Those symbols are not allowed in the summary text: ".
+                        Important: Summary length must not exceed 15 words. Those symbols are not allowed in the summary text: ".
 
-                    You must respond ONLY with the JSON schema with the following structure. Do not add any additional comments. Don't make any greetings, like, "Here your response".
+                        You must respond ONLY with the JSON schema with the following structure. Do not add any additional comments. Don't make any greetings, like, "Here your response".
 
-                    Return me a valid json in this format:
-                    {
-                        "summary": "<Summary goes here>",
-                        "title_similarity_score": "<Title similarity score goes here>",
-                    }
+                        Return me a valid json in this format:
+                        {
+                            "summary": "<Summary goes here>",
+                            "title_similarity_score": "<Title similarity score goes here>",
+                        }
 
-                """
-                + "Video title: "
-                + title
-                + "\n\nHere is the transcript:"
-                + transcript,
-            }
-        ],
-    )
-    content = response.choices[0].message.content
+                    """
+                    + "Video title: "
+                    + title
+                    + "\n\nHere is the transcript:"
+                    + transcript,
+                }
+            ],
+        )
+        content = response.choices[0].message.content
 
-    print(content)
+        print(content)
 
-    return extract_json(content)
+        return extract_json(content)
+    except Exception as e:
+        print(e)
+        abort(500, 'Failed to process transcript')
 
 
 def process_comments(comments):
@@ -154,55 +173,59 @@ def process_comments(comments):
             comments_text += "[likes_count: {count}]\n".format(count=comment[1])
             comments_text += comment[1] + "\n"
 
-    response = AiClient.chat.completions.create(
-        model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
-        max_tokens=512,
-        temperature=0.2,
-        top_p=0.7,
-        top_k=50,
-        repetition_penalty=1,
-        messages=[
-            {
-                "role": "user",
-                "content": """
-                    I will provide you with a list of comments from a YouTube video. I will provide you comment likes amount and comment text.
+    try:
+        response = AiClient.chat.completions.create(
+            model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
+            max_tokens=512,
+            temperature=0.2,
+            top_p=0.7,
+            top_k=50,
+            repetition_penalty=1,
+            messages=[
+                {
+                    "role": "user",
+                    "content": """
+                        I will provide you with a list of comments from a YouTube video. I will provide you comment likes amount and comment text.
 
-                    I want you to provide a summary of the most discussed things. Make sure to focus on most liked comments.
+                        I want you to provide a summary of the most discussed things. Make sure to focus on most liked comments.
 
-                    I also want you to count amount mentions of 'clickbait' in a comments.
+                        I also want you to count amount mentions of 'clickbait' in a comments.
 
-                    I will provide comments in the following format:
-                    ```
-                        [likes_count: number]
-                        comment_text
-                        [likes_count: number]
-                        comment_text
-                        ...
-                    ```
+                        I will provide comments in the following format:
+                        ```
+                            [likes_count: number]
+                            comment_text
+                            [likes_count: number]
+                            comment_text
+                            ...
+                        ```
 
-                    Important: Summary length must not exceed 20 words. Those symbols are not allowed in the summary text: ".
+                        Important: Summary length must not exceed 20 words. Those symbols are not allowed in the summary text: ".
 
-                    Do not add any additional comments. Don't make any greetings, like, "Here your response".
+                        Do not add any additional comments. Don't make any greetings, like, "Here your response".
 
-                    You must respond ONLY with the JSON schema with the following structure.
+                        You must respond ONLY with the JSON schema with the following structure.
 
-                    Return me a valid json in this format:
-                    {
-                        "comments_summary": "<Summary goes here>",
-                        "clickbait_mentions": <Clickbait count goes here>,
-                    }
+                        Return me a valid json in this format:
+                        {
+                            "comments_summary": "<Summary goes here>",
+                            "clickbait_mentions": <Clickbait count goes here>,
+                        }
 
-                    Here are the comments:
-                """
-                + comments_text,
-            }
-        ],
-    )
-    content = response.choices[0].message.content
+                        Here are the comments:
+                    """
+                    + comments_text,
+                }
+            ],
+        )
+        content = response.choices[0].message.content
 
-    print(content)
+        print(content)
 
-    return extract_json(content)
+        return extract_json(content)
+    except Exception as e:
+        print(e)
+        abort(500, 'Failed to process comments')
 
 
 # =============================================================
