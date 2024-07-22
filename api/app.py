@@ -5,6 +5,7 @@ from together import Together
 from googleapiclient.discovery import build
 import os
 import json
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -12,6 +13,7 @@ AiClient = Together(api_key=os.getenv("TOGETHER_API_KEY"))
 YoutubeClient = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route('/api/v1/thumbnail-summary', methods=['GET'])
 def get_video_summary():
@@ -21,10 +23,10 @@ def get_video_summary():
     comments = download_comments(video_id)
     video_info = download_video_info(video_id)
 
+    print('>>>>starting processing')
     summary_info = process_transcript(title=video_info['title'], transcript=full_transcript)
     comments_info = process_comments(comments)
-
-    print(comments_info)
+    print('>>>>processing is finished')
 
     return jsonify({
         "clickbait_score": calc_clickbait_score(video_info, comments_info, summary_info, comments),
@@ -83,10 +85,15 @@ def download_video_info(video_id):
 
 # =============================================================
 # ======================= Process Data ========================
+def extract_json(content):
+    start = content.find('{')
+    end = content.rfind('}')
+
+    return json.loads(content[start:end + 1])
 
 def process_transcript(transcript='', title=''):
     response = AiClient.chat.completions.create(
-        model="meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
+        model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
         max_tokens=512,
         temperature=0.2,
         top_p=0.7,
@@ -112,11 +119,11 @@ def process_transcript(transcript='', title=''):
             ''' + "Video title: " + title + "\n\nHere is the transcript:" + transcript
         }],
     )
+    content = response.choices[0].message.content
 
-    print(response.choices[0].message.content)
-    data = json.loads(response.choices[0].message.content)
+    print(content)
 
-    return data
+    return extract_json(content)
 
 def process_comments(comments):
     if len(comments) == 0:
@@ -132,7 +139,7 @@ def process_comments(comments):
             comments_text += comment[1] + '\n'
 
     response = AiClient.chat.completions.create(
-        model="meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
+        model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
         max_tokens=512,
         temperature=0.2,
         top_p=0.7,
@@ -172,12 +179,11 @@ def process_comments(comments):
             ''' + comments_text
         }],
     )
+    content = response.choices[0].message.content
 
-    print ('comments')
-    print(response.choices[0].message.content)
-    data = json.loads(response.choices[0].message.content)
+    print(content)
 
-    return data
+    return extract_json(content)
 
 # =============================================================
 # ======================== Calc score =========================
