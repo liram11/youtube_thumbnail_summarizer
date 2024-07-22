@@ -52,17 +52,30 @@ def get_video_summary():
 # ================== Fetch data from YouTube ==================
 def download_full_transcript(video_id):
     try:
-        transcripts = YouTubeTranscriptApi.get_transcript(video_id, languages=['en', 'en-US', 'en-UK'])
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en', 'en-US', 'en-UK'])
 
-        full_transcript = ""
-        for transcript in transcripts:
-            full_transcript += transcript["text"] + " "
+    except:
+        try:
+            transcript = download_translated_transcript(video_id)
+        except Exception as e:
+            print(e)
+            abort(500, 'Failed to load transcript')
 
-        return full_transcript
+    full_transcript = ""
+    for transcript in transcript:
+        full_transcript += transcript["text"] + " "
+
+    return full_transcript
+
+def download_translated_transcript(video_id):
+    try:
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        language_code = list(transcript_list)[0].language_code
+        transcript = transcript_list.find_transcript([language_code])
+        return transcript.translate('en').fetch()
     except Exception as e:
         print(e)
         abort(500, 'Failed to load transcript')
-
 
 def download_comments(video_id):
     try:
@@ -273,12 +286,13 @@ def get_justification(
     elif comments_score > 29:
         justification.append(", a medium like-to-view ratio")
 
-    if len(justification) > 1:
-        justification.append(", and has")
-
     if title_similarity_score > 50:
+        if len(justification) > 1:
+            justification.append(", and has")
         justification.append(" a title that does not match the content")
     elif title_similarity_score > 29:
+        if len(justification) > 1:
+            justification.append(", and has")
         justification.append(" a title that partially match the content")
 
     if len(justification) > 1:
