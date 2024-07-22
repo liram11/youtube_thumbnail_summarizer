@@ -115,21 +115,21 @@ def process_transcript(transcript="", title=""):
             {
                 "role": "user",
                 "content": """
-                Generate a summary for a YouTube video transcript.
+                    Generate a summary for a YouTube video transcript.
 
-                I also want you to compare the video summary with the video title and provide me a similarity score from 0 to 100.
+                    I also want you to compare the video summary with the video title and provide me a similarity score from 0 to 100.
 
-                Important: Summary length must not exceed 15 words. Those symbols are not allowed in the summary text: ".
+                    Important: Summary length must not exceed 15 words. Those symbols are not allowed in the summary text: ".
 
-                You must respond ONLY with the JSON schema with the following structure. Do not add any additional comments. Don't make any greetings, like, "Here your response".
+                    You must respond ONLY with the JSON schema with the following structure. Do not add any additional comments. Don't make any greetings, like, "Here your response".
 
-                Return me a valid json in this format:
-                {
-                    "summary": "<Summary goes here>",
-                    "title_similarity_score": "<Title similarity score goes here>",
-                }
+                    Return me a valid json in this format:
+                    {
+                        "summary": "<Summary goes here>",
+                        "title_similarity_score": "<Title similarity score goes here>",
+                    }
 
-            """
+                """
                 + "Video title: "
                 + title
                 + "\n\nHere is the transcript:"
@@ -165,35 +165,35 @@ def process_comments(comments):
             {
                 "role": "user",
                 "content": """
-                I will provide you with a list of comments from a YouTube video. I will provide you comment likes amount and comment text.
+                    I will provide you with a list of comments from a YouTube video. I will provide you comment likes amount and comment text.
 
-                I want you to provide a summary of the most discussed things. Make sure to focus on most liked comments.
+                    I want you to provide a summary of the most discussed things. Make sure to focus on most liked comments.
 
-                I also want you to count amount mentions of 'clickbait' in a comments.
+                    I also want you to count amount mentions of 'clickbait' in a comments.
 
-                I will provide comments in the following format:
-                ```
-                    [likes_count: number]
-                    comment_text
-                    [likes_count: number]
-                    comment_text
-                    ...
-                ```
+                    I will provide comments in the following format:
+                    ```
+                        [likes_count: number]
+                        comment_text
+                        [likes_count: number]
+                        comment_text
+                        ...
+                    ```
 
-                Important: Summary length must not exceed 20 words. Those symbols are not allowed in the summary text: ".
+                    Important: Summary length must not exceed 20 words. Those symbols are not allowed in the summary text: ".
 
-                Do not add any additional comments. Don't make any greetings, like, "Here your response".
+                    Do not add any additional comments. Don't make any greetings, like, "Here your response".
 
-                You must respond ONLY with the JSON schema with the following structure.
+                    You must respond ONLY with the JSON schema with the following structure.
 
-                Return me a valid json in this format:
-                {
-                    "comments_summary": "<Summary goes here>",
-                    "clickbait_mentions": <Clickbait count goes here>,
-                }
+                    Return me a valid json in this format:
+                    {
+                        "comments_summary": "<Summary goes here>",
+                        "clickbait_mentions": <Clickbait count goes here>,
+                    }
 
-                Here are the comments:
-            """
+                    Here are the comments:
+                """
                 + comments_text,
             }
         ],
